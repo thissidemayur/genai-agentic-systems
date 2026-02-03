@@ -61,6 +61,7 @@ genai-agentic-systems/
 ├── 1-inVoke_LLM/
 ├── 2-toolCalling/
 ├── 3-llm_webSearchTool_integreaton/
+├── 4-chatbot_project/
 ├── (future: RAG, vectorDBs, frameworks, evals)
 ```
 
@@ -100,7 +101,7 @@ This folder exists to build **correct mental models**.
 
 ---
 
-### 3️⃣ `3-llm_webSearchTool_integreaton/` — Agent Implementation
+### 3️⃣ `3-llm_webSearchTool_integreaton/` — Agent Implementation (CLI)
 
 **Focus:** A real, working AI agent.
 
@@ -112,6 +113,45 @@ Covers:
 - safety mechanisms (tool iteration limits)
 
 This is a **minimal but real agent system**, not a demo.
+
+---
+
+## Projects Inside This Workspace
+
+Alongside learning modules, this repository also contains **end-to-end GenAI applications** that demonstrate how agentic systems are applied in practice.
+
+Some projects remain here for architectural clarity; others may later be split into standalone repositories.
+
+---
+
+### 🤖 Maya AI — Agentic Chatbot
+
+**Location:** `chatbot_project/`  
+**Type:** Full-stack Agentic Application
+
+Maya AI is a lightweight, full-stack **agentic chatbot** that demonstrates how an LLM can **reason, decide, and act** by invoking external tools for real-time information.
+
+Unlike traditional chatbots, Maya follows an **explicit ReAct (Reason + Act) loop**, where the LLM decides when web access is required and the system executes tools on its behalf.
+
+#### What This Project Demonstrates
+
+- Agentic reasoning with LLMs
+- Tool calling for real-time web data (Tavily)
+- LLM → Tool → LLM feedback loop
+- Separation of reasoning and execution
+- Grounded responses using live data
+- Minimal frontend + Express backend integration
+
+#### Tech Stack
+
+- **Frontend:** HTML, Vanilla JavaScript, Tailwind CSS  
+- **Backend:** Node.js, Express.js  
+- **LLM:** Groq SDK (`llama-3.3-70b-versatile`)  
+- **Tools:** Tavily Web Search API  
+
+This project serves as a **practical proof-of-work** for building real agentic systems without heavy frameworks.
+
+Refer to `chatbot_project/README.md` for implementation details.
 
 ---
 
@@ -128,7 +168,8 @@ This repo will expand to include:
 - Multi-agent orchestration
 
 Each addition will follow the same rule:
-> understand → implement → abstract
+
+> **understand → implement → abstract**
 
 ---
 
