@@ -1,0 +1,21 @@
+{
+  "name": "4-chatbot_project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.18",
+    "@tavily/core": "^0.7.1",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "groq-sdk": "^0.37.0",
+    "tailwindcss": "^4.1.18"
+  }
+}
