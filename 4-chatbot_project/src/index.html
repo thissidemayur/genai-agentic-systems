@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="./style.output.css" />
+  </head>
+
+  <body class="bg-[#121315]">
+    <section
+      class="h-screen w-full overflow-x-hidden flex items-start justify-center"
+    >
+      <!-- Main Scrollable Area -->
+      <div
+        class=" max-w-4xl h-full w-full overflow-y-scroll px-4 scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        <!-- Message Wrapper: Removed h-full, added pb-48 for spacing -->
+        <div class="w-full pb-48 pt-4 " id="chat-container">
+          <!-- User Chat -->
+        
+
+          <!-- LLM Response -->
+          
+          </div>
+        </div>
+
+        <!-- Fixed Controller section -->
+        <div
+          class="fixed bottom-4 left-0 right-0 mx-auto w-[calc(100%-6rem)] max-w-4xl bg-[#1f1e20] rounded-3xl text-slate-100 px-5 py-3 z-10 border border-white/5 shadow-2xl"
+        >
+          <div class="px-3 py-1.5">
+            <textarea
+              rows="2"
+              class="w-full bg-transparent outline-none resize-none"
+              placeholder="Type a message..."
+              id="user-input"
+            ></textarea>
+          </div>
+          <div class="w-full flex">
+            <button
+              id="button"
+              class="bg-slate-100 text-slate-950 ml-auto rounded-xl px-4 py-1.5 font-medium cursor-pointer hover:bg-slate-200 transition-colors"
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script src="script.js"></script>
+  </body>
+</html>
