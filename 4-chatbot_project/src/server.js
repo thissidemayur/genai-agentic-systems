@@ -2,10 +2,12 @@ import express from "express"
 import Groq from "groq-sdk";
 import { tavily } from "@tavily/core";
 import cors from "cors"
+import NodeCache from "node-cache"
 
 
 const app = express()
 const port = 3000;
+const cache = new NodeCache()
 
 app.use(express.json())
 app.use(cors())
@@ -15,16 +17,16 @@ app.get("/",(req,res)=>{
 })
 app.post("/llm",async(req,res)=>{
   try {
-    const { message } = req.body;
-    if (!message) {
+    const { message,tokenId } = req.body;
+    if (!message || !tokenId) {
       return res.status(400).json({
         status: "error",
         error: "Bad Request",
-        details: "Message content is required.",
+        details: "All content is required.",
       });
     }
     
-    const llmResp = await chatWithLLM(message)
+    const llmResp = await chatWithLLM(message,tokenId)
     return res.status(200).json({
       message:llmResp,
       status:"ok"
@@ -55,21 +57,24 @@ app.listen(port,()=>{
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const tvly = tavily({ apiKey: process.env.TAVILY_API_KEY });
 
-async function chatWithLLM(userInputData) {
+async function chatWithLLM(userInputData,tokenId) {
   // Safety: limit how many times tools can be called per user query
   let toolIterations = 0;
   const MAX_TOOL_ITERATIONS = 3;
 
-  const messages = [
+  const baseMsg = [
     {
       role: "system",
       content:
         "You are Yamini, a smart AI assistant. Answer accurately, concisely, and avoid repetition.",
     },
   ];
+
+  const messages = cache.get(tokenId) ?? [...baseMsg]
   // add user messgae
   messages.push({ role: "user", content: userInputData });
 
+  
   while (true) {
     toolIterations++;
     const completion = await groq.chat.completions.create({
@@ -104,6 +109,7 @@ async function chatWithLLM(userInputData) {
 
     const toolCall = assistantMessage?.tool_calls;
     if (!toolCall) {
+      cache.set(tokenId,messages,60*60*24)
       return assistantMessage.content;
     }
 
@@ -137,6 +143,3 @@ async function chatWithLLM(userInputData) {
 async function webSearchTool({ query }) {
   return await tvly.search(query);
 }
-
-
-
