@@ -2,9 +2,7 @@ const chatContainer = document.getElementById("chat-container");
 const userInput = document.getElementById("user-input");
 const button = document.getElementById("button");
 const ServerURL = "http://localhost:3000";
-//  create div to show user request
-
-// create div to show llm response
+const tokenId = Date.now().toString(36) + Math.random().toString(36)
 
 // create loading state
 function toogleLoader(show) {
@@ -98,6 +96,7 @@ async function callToServer(userInput) {
       },
       body: JSON.stringify({
         message: userInput,
+        tokenId
       }),
     });
 
