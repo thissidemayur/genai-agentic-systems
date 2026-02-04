@@ -16,6 +16,7 @@
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "groq-sdk": "^0.37.0",
+    "node-cache": "^5.1.2",
     "tailwindcss": "^4.1.18"
   }
 }
