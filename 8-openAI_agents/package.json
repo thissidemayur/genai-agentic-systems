@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "openai": "^6.32.0"
+  },
+  "name": "8-openai",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
