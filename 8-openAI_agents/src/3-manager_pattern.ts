@@ -17,7 +17,7 @@ const processRefund = tool({
     if (refundable) {
          await fs.appendFile(
            "./refund.txt",
-           `Refund for customer having id: ${customer_id} and reasons: ${reason}`,
+           `\nRefund for customer having id: ${customer_id} and reasons: ${reason}`,
            "utf-8",
          );
         return {
@@ -55,7 +55,7 @@ const refundAgent = new Agent({
         reasons: 
         if returable is no then why not with companies polices in short
 
-        
+
     `,
   tools: [processRefund],
 });
