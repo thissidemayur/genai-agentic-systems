@@ -1,4 +1,4 @@
-\# 8-OpenAI-Agents
+# 8-OpenAI-Agents
 
 A hands-on learning repository where I explored and implemented core patterns of the **OpenAI Agents SDK** — from basic tool calling to multi-agent orchestration with guardrails and MCP.
 
@@ -57,7 +57,7 @@ Connected agents to external tools and data sources via MCP servers. Learned how
 8-openai-agents/src
 ├── agents-and-tools/
 ├── manager-handoff/
-├── -structured-output/
+├── structured-output/
 ├── guardrails/
 ├── local-context/
 ├── chat-thread/
