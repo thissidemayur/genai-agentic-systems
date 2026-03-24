@@ -1,0 +1,127 @@
+-- ============================================================
+--  ecommerce.db  —  SQLite schema
+--  Used by: Order, Customer, Inventory, Refund, Analytics agents
+-- ============================================================
+
+PRAGMA foreign_keys = ON;
+PRAGMA journal_mode  = WAL;   -- safe for concurrent agent reads
+
+
+-- ------------------------------------------------------------
+-- 1. customers
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS customers (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  name        TEXT    NOT NULL,
+  email       TEXT    NOT NULL UNIQUE,
+  phone       TEXT,
+  tier        TEXT    NOT NULL DEFAULT 'bronze'
+                CHECK (tier IN ('bronze', 'silver', 'gold')),
+  created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+
+-- ------------------------------------------------------------
+-- 2. categories
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS categories (
+  id    INTEGER PRIMARY KEY AUTOINCREMENT,
+  name  TEXT    NOT NULL UNIQUE   -- e.g. "Electronics", "Clothing"
+);
+
+
+-- ------------------------------------------------------------
+-- 3. products
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS products (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  sku          TEXT    NOT NULL UNIQUE,
+  name         TEXT    NOT NULL,
+  category_id  INTEGER REFERENCES categories(id) ON DELETE SET NULL,
+  price        REAL    NOT NULL CHECK (price >= 0),
+  stock_qty    INTEGER NOT NULL DEFAULT 0 CHECK (stock_qty >= 0),
+  restock_threshold INTEGER NOT NULL DEFAULT 5,  -- Inventory Agent alert trigger
+  created_at   TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+
+-- ------------------------------------------------------------
+-- 4. orders
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS orders (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  customer_id  INTEGER NOT NULL REFERENCES customers(id) ON DELETE RESTRICT,
+  status       TEXT    NOT NULL DEFAULT 'pending'
+                 CHECK (status IN ('pending','confirmed','shipped','delivered','cancelled')),
+  total        REAL    NOT NULL DEFAULT 0 CHECK (total >= 0),
+  shipping_address TEXT,
+  created_at   TEXT    NOT NULL DEFAULT (datetime('now')),
+  updated_at   TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+
+-- ------------------------------------------------------------
+-- 5. order_items
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS order_items (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_id    INTEGER NOT NULL REFERENCES orders(id)   ON DELETE CASCADE,
+  product_id  INTEGER NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
+  qty         INTEGER NOT NULL CHECK (qty > 0),
+  unit_price  REAL    NOT NULL CHECK (unit_price >= 0)  -- snapshot at time of purchase
+);
+
+
+-- ------------------------------------------------------------
+-- 6. refunds
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS refunds (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_id    INTEGER NOT NULL REFERENCES orders(id) ON DELETE RESTRICT,
+  reason      TEXT    NOT NULL,
+  status      TEXT    NOT NULL DEFAULT 'pending'
+                CHECK (status IN ('pending', 'approved', 'rejected')),
+  amount      REAL    NOT NULL CHECK (amount > 0),
+  resolved_at TEXT,                                  -- NULL until approved/rejected
+  created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+
+-- ------------------------------------------------------------
+-- 7. audit_log  — every agent action is recorded here
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS audit_log (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  agent      TEXT    NOT NULL,   -- e.g. 'refund_agent', 'order_agent'
+  action     TEXT    NOT NULL,   -- e.g. 'approve_refund', 'cancel_order'
+  entity     TEXT,               -- e.g. 'order', 'product'
+  entity_id  INTEGER,            -- the row that was touched
+  note       TEXT,               -- free-form detail
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+
+-- ============================================================
+--  INDEXES  — speeds up the queries agents will run most often
+-- ============================================================
+
+CREATE INDEX IF NOT EXISTS idx_orders_customer    ON orders(customer_id);
+CREATE INDEX IF NOT EXISTS idx_orders_status      ON orders(status);
+CREATE INDEX IF NOT EXISTS idx_order_items_order  ON order_items(order_id);
+CREATE INDEX IF NOT EXISTS idx_order_items_product ON order_items(product_id);
+CREATE INDEX IF NOT EXISTS idx_refunds_order      ON refunds(order_id);
+CREATE INDEX IF NOT EXISTS idx_refunds_status     ON refunds(status);
+CREATE INDEX IF NOT EXISTS idx_products_category  ON products(category_id);
+CREATE INDEX IF NOT EXISTS idx_audit_agent        ON audit_log(agent);
+CREATE INDEX IF NOT EXISTS idx_audit_created      ON audit_log(created_at);
+
+
+-- ============================================================
+--  TRIGGER  — keep orders.updated_at fresh automatically
+-- ============================================================
+
+CREATE TRIGGER IF NOT EXISTS trg_orders_updated_at
+AFTER UPDATE ON orders
+BEGIN
+  UPDATE orders SET updated_at = datetime('now') WHERE id = NEW.id;
+END;
